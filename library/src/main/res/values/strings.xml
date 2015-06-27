@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">library</string>
+    <string name="retake_pic">Retake Picture</string>
+    <string name="from_gallery">From Gallery</string>
+</resources>
