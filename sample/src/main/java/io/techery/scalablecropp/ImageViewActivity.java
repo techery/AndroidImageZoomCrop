@@ -20,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 
 import io.techery.scalablecropp.io.R;
@@ -30,9 +29,6 @@ import io.techery.scalablecropp.library.InternalStorageContentProvider;
 import io.techery.scalablecropp.library.Utils;
 
 
-/**
- * @author GT
- */
 public class ImageViewActivity extends Activity implements PicModeSelectDialogFragment.IPicModeSelectListener {
 
     public static final String TAG = "ImageViewActivity";
@@ -40,8 +36,6 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
     public static final int REQUEST_CODE_PICK_GALLERY = 0x2;
     public static final int REQUEST_CODE_TAKE_PICTURE = 0x3;
     public static final String TEMP_PHOTO_FILE_NAME = "temp_photo.jpg";
-
-    private String imgUri;
 
     private Button mBtnUpdatePic;
     private ImageView mImageView;
@@ -76,23 +70,18 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
                 //TODO : Handle case
             } else {
                 String errorMsg = result.getStringExtra(ImageCropActivity.ERROR_MSG);
-                Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+                onError(errorMsg);
             }
-        }
-        if (requestCode == REQUEST_CODE_TAKE_PICTURE) {
+        } else if (requestCode == REQUEST_CODE_TAKE_PICTURE) {
             if (resultCode == RESULT_OK) {
-                createTempFile();
-
                 Intent intent = new Intent(this, ImageCropActivity.class);
                 intent.putExtra(ImageCropActivity.INPUT_FILE_PATH, mFileTemp.getPath());
                 startActivityForResult(intent, REQUEST_CODE_UPDATE_PIC);
 
             } else if (resultCode == RESULT_CANCELED) {
                 onCancel();
-                return;
             } else {
                 onError("Error while opening the image file. Please try again.");
-                return;
             }
 
         } else if (requestCode == REQUEST_CODE_PICK_GALLERY) {
@@ -101,14 +90,12 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
                 return;
             } else if (resultCode == RESULT_OK) {
                 try {
-                    InputStream inputStream = getContentResolver().openInputStream(result.getData()); // Got the bitmap .. Copy it to the temp file for cropping
-                    FileOutputStream fileOutputStream = new FileOutputStream(mFileTemp);
-                    Utils.copyStream(inputStream, fileOutputStream);
-                    fileOutputStream.close();
-                    inputStream.close();
+                    Uri data = result.getData();
+                    InputStream inputStream = getContentResolver().openInputStream(data); // Got the bitmap .. Copy it to the temp file for cropping
+                    Utils.copy(inputStream, mFileTemp);
 
                     Intent intent = new Intent(this, ImageCropActivity.class);
-                    intent.putExtra(ImageCropActivity.INPUT_FILE_PATH, mFileTemp.getPath());
+                    intent.putExtra(ImageCropActivity.INPUT_FILE_PATH, this.mFileTemp.getPath());
                     startActivityForResult(intent, REQUEST_CODE_UPDATE_PIC);
 
                 } catch (Exception e) {
@@ -174,13 +161,6 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
     }
 
 
-    private void showCroppedImage(String mImagePath) {
-        if (mImagePath != null) {
-            Bitmap myBitmap = BitmapFactory.decodeFile(mImagePath);
-            mImageView.setImageBitmap(myBitmap);
-        }
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -192,7 +172,25 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
         }
     }
 
-    //--------Private methods --------
+    @Override
+    public void onPicModeSelected(GOTOConstants.PicMode mode) {
+        switch (mode) {
+            case CAMERA:
+                takePic();
+                break;
+            case GALLERY:
+                pickImage();
+                break;
+        }
+    }
+
+    private void showCroppedImage(String mImagePath) {
+        if (mImagePath != null) {
+            Bitmap myBitmap = BitmapFactory.decodeFile(mImagePath);
+            mImageView.setImageBitmap(myBitmap);
+        }
+    }
+
 
     private void initCardView() {
         mCardView.setPreventCornerOverlap(false);
@@ -201,7 +199,6 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
         int w = displayMetrics.widthPixels;
         ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mCardView.getLayoutParams();
         int leftMargin = lp.leftMargin;
-        int topMargin = lp.topMargin;
         int rightMargin = lp.rightMargin;
         int paddingLeft = mCardView.getPaddingLeft();
         int paddingRight = mCardView.getPaddingLeft();
@@ -214,20 +211,5 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
         PicModeSelectDialogFragment dialogFragment = new PicModeSelectDialogFragment();
         dialogFragment.setPicModeSelectListener(this);
         dialogFragment.show(getFragmentManager(), "picModeSelector");
-    }
-
-
-    @Override
-    public void onPicModeSelected(GOTOConstants.PicMode mode) {
-        switch (mode) {
-            case CAMERA:
-                getIntent().removeExtra("ACTION");
-                takePic();
-                break;
-            case GALLERY:
-                getIntent().removeExtra("ACTION");
-                pickImage();
-                break;
-        }
     }
 }
