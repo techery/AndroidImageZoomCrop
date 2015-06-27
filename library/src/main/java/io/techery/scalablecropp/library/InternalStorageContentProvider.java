@@ -26,7 +26,7 @@ public class InternalStorageContentProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         try {
-            File mFile = new File(getContext().getFilesDir(), ImageCropActivity.TEMP_PHOTO_FILE_NAME);
+            File mFile = new File(getContext().getFilesDir(), "");
             if (!mFile.exists()) {
                 mFile.createNewFile();
                 getContext().getContentResolver().notifyChange(CONTENT_URI, null);
@@ -51,7 +51,7 @@ public class InternalStorageContentProvider extends ContentProvider {
 
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-        File f = new File(getContext().getFilesDir(), ImageCropActivity.TEMP_PHOTO_FILE_NAME);
+        File f = new File(getContext().getFilesDir(), "");
         if (f.exists()) {
             return (ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_WRITE));
         }

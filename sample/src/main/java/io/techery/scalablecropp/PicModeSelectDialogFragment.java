@@ -14,28 +14,34 @@ import io.techery.scalablecropp.library.GOTOConstants;
  */
 public class PicModeSelectDialogFragment extends DialogFragment {
 
-    private String[] picMode = {GOTOConstants.PicModes.CAMERA, GOTOConstants.PicModes.GALLERY};
 
     private IPicModeSelectListener iPicModeSelectListener;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final GOTOConstants.PicMode[] values = GOTOConstants.PicMode.values();
+        String[] names = new String[values.length];
+        for (int i = 0; i < values.length; i++) {
+            names[i] = values[i].name().toLowerCase();
+        }
         builder.setTitle("Select Mode")
-                .setItems(picMode, new DialogInterface.OnClickListener() {
+                .setItems(names, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        if (iPicModeSelectListener != null)
-                            iPicModeSelectListener.onPicModeSelected(picMode[which]);
+                        if (iPicModeSelectListener != null) {
+                            GOTOConstants.PicMode mode = values[which];
+                            iPicModeSelectListener.onPicModeSelected(mode);
+                        }
                     }
                 });
         return builder.create();
     }
 
-    public void setiPicModeSelectListener(IPicModeSelectListener iPicModeSelectListener) {
+    public void setPicModeSelectListener(IPicModeSelectListener iPicModeSelectListener) {
         this.iPicModeSelectListener = iPicModeSelectListener;
     }
 
     public interface IPicModeSelectListener {
-        void onPicModeSelected(String mode);
+        void onPicModeSelected(GOTOConstants.PicMode mode);
     }
 }
