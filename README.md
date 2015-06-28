@@ -1,6 +1,6 @@
 # AndroidImageZoomCrop
-Android library for crop images like in Twitter and Facebook.
-Should be good for cover photo
+Android view library for crop images like in Twitter and Facebook.
+Should be good for cropping cover photos.
 
 ![JitPack release](https://img.shields.io/github/tag/techery/AndroidImageZoomCrop.svg?label=JitPack)
 
