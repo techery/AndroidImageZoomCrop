@@ -13,11 +13,11 @@ import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -35,37 +35,31 @@ import io.techery.scalablecropp.library.imagecrop.photoview.PhotoView;
 import io.techery.scalablecropp.library.imagecrop.photoview.PhotoViewAttacher;
 import scalecropview.techery.io.library.R;
 
-/**
- * @author GT
- */
 public class ImageCropActivity extends Activity {
 
     public static final String TAG = "ImageCropActivity";
     public static final String INPUT_FILE_PATH = "FILE_PATH";
+    public static final String INPUT_RATIO_X = "INPUT_RATIO_X";
+    public static final String INPUT_RATIO_Y = "INPUT_RATIO_Y";
+
+    public static final String ERROR_MSG = "error_msg";
+
+    private static final int IMAGE_MAX_SIZE = 1024;
+
+    private final Bitmap.CompressFormat mOutputFormat = Bitmap.CompressFormat.JPEG;
+
     PhotoView mImageView;
     CropOverlayView mCropOverlayView;
-    Button btnRetakePic;
-    Button btnFromGallery;
-    Button btnDone;
     View mMoveResizeText;
-
-
+    Toolbar toolbar;
     private ContentResolver mContentResolver;
     private float minScale = 1f;
-
-    private final int IMAGE_MAX_SIZE = 1024;
-    private final Bitmap.CompressFormat mOutputFormat = Bitmap.CompressFormat.JPEG;
 
     //Temp file to save cropped image
     private String mImagePath;
     private Uri mSaveUri = null;
     private Uri mImageUri = null;
 
-
-    //File for capturing camera images
-    public static final int REQUEST_CODE_CROPPED_PICTURE = 0x3;
-    public static final String ERROR_MSG = "error_msg";
-    public static final String ERROR = "error";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,15 +68,15 @@ public class ImageCropActivity extends Activity {
         mContentResolver = getContentResolver();
         mImageView = (PhotoView) findViewById(R.id.iv_photo);
         mCropOverlayView = (CropOverlayView) findViewById(R.id.crop_overlay);
-        btnRetakePic = (Button) findViewById(R.id.btnRetakePic);
-        btnFromGallery = (Button) findViewById(R.id.btnFromGallery);
-        btnDone = (Button) findViewById(R.id.btn_done);
         mMoveResizeText = findViewById(R.id.tv_move_resize_txt);
-
-        btnRetakePic.setOnClickListener(btnRetakeListener);
-        btnFromGallery.setOnClickListener(btnFromGalleryListener);
-        btnDone.setOnClickListener(btnDoneListerner);
-
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+        findViewById(R.id.btn_done).setOnClickListener(btnDoneListerner);
         mImageView.addListener(new PhotoViewAttacher.IGetImageBounds() {
             @Override
             public Rect getImageBounds() {
@@ -95,6 +89,7 @@ public class ImageCropActivity extends Activity {
         mImageUri = Utils.getImageUri(mImagePath);
         init();
     }
+
 
     @Override
     protected void onStart() {
@@ -110,10 +105,8 @@ public class ImageCropActivity extends Activity {
         final float cropWindowHeight = Edge.getHeight();
         if (h <= w) {
             //Set the image view height to
-            //HACK : Have to add 1f.
             minScale = (cropWindowHeight + 1f) / h;
         } else if (w < h) {
-            //HACK : Have to add 1f.
             minScale = (cropWindowWidth + 1f) / w;
         }
 
@@ -149,19 +142,6 @@ public class ImageCropActivity extends Activity {
             Toast.makeText(this, "Unable to save Image into your device.", Toast.LENGTH_LONG).show();
         }
     }
-
-    private View.OnClickListener btnRetakeListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-        }
-    };
-
-    private View.OnClickListener btnFromGalleryListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-        }
-    };
-
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
