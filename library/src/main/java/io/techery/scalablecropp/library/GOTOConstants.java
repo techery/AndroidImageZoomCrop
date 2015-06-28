@@ -12,6 +12,16 @@ public class GOTOConstants {
     }
 
     public enum PicMode {
-        CAMERA, GALLERY;
+        CAMERA("Camera"), GALLERY("Gallery");
+
+        String title;
+
+        PicMode(String title) {
+            this.title = title;
+        }
+
+        public String getTitle() {
+            return title;
+        }
     }
 }

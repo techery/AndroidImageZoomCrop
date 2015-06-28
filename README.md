@@ -4,7 +4,7 @@ Should be good for cropping cover photos.
 
 ![JitPack release](https://img.shields.io/github/tag/techery/AndroidImageZoomCrop.svg?label=JitPack)
 
-![Demo](assets/progresshint-demo.gif)
+![Demo](assets/image_zoom_crop.gif)
 
 
 ## Getting Started

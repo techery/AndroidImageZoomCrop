@@ -10,8 +10,6 @@ import android.widget.Toast;
 
 import java.io.File;
 
-import io.techery.scalablecropp.library.InternalStorageContentProvider;
-
 public class ImageDeliveryClub {
 
     public static final int REQUEST_CODE_PICK_GALLERY = 0x2;
@@ -20,15 +18,12 @@ public class ImageDeliveryClub {
     public void takePic(Activity activity, File fileTemp) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         try {
-            Uri mImageCaptureUri = null;
+            Uri mImageCaptureUri;
             String state = Environment.getExternalStorageState();
             if (Environment.MEDIA_MOUNTED.equals(state)) {
                 mImageCaptureUri = Uri.fromFile(fileTemp);
             } else {
-                /*
-                 * The solution is taken from here: http://stackoverflow.com/questions/10042695/how-to-get-camera-result-as-a-uri-in-data-folder
-	        	 */
-                mImageCaptureUri = InternalStorageContentProvider.CONTENT_URI;
+                mImageCaptureUri = ImageViewActivity.CONTENT_URI;
             }
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
             takePictureIntent.putExtra("return-data", true);

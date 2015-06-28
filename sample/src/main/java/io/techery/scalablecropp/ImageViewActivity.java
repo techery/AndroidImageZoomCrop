@@ -32,6 +32,8 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
     public static final String TAG = "ImageViewActivity";
     public static final String TEMP_PHOTO_FILE_NAME = "temp_photo.jpg";
 
+    public static final Uri CONTENT_URI = Uri.parse("content://com.myntra.profilepic.crop/");
+
     private ImageView mImageView;
     private File mFileTemp;
     private ImageDeliveryClub imageDeliveryClub = new ImageDeliveryClub();
@@ -66,7 +68,7 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
                         onError("Error while opening the image file. Please try again.");
                     }
                 }
-                Crop.prepare(mFileTemp.getPath()).startFrom(this);
+                Crop.prepare(mFileTemp.getPath()).ratio(1,1).startFrom(this);
             } else if (resultCode == RESULT_CANCELED) {
                 onCancel();
             } else {

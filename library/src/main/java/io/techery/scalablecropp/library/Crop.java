@@ -21,17 +21,20 @@ public class Crop {
         return new Crop(filePath);
     }
 
-    public void ratio(int x, int y) {
+    public Crop ratio(int x, int y) {
         ratioX = x;
         ratioY = y;
+        return this;
     }
 
     public void startFrom(Fragment fragment) {
-
+        if (fragment.getActivity() != null)
+            fragment.startActivityForResult(prepareIntent(fragment.getActivity()), REQUEST_CODE_UPDATE_PIC);
     }
 
     public void startFrom(android.app.Fragment fragment) {
-
+        if (fragment.getActivity() != null)
+            fragment.startActivityForResult(prepareIntent(fragment.getActivity()), REQUEST_CODE_UPDATE_PIC);
     }
 
     public void startFrom(Activity activity) {

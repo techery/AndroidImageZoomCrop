@@ -1,10 +1,10 @@
 package io.techery.scalablecropp;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 
 import io.techery.scalablecropp.library.GOTOConstants;
 
@@ -23,7 +23,7 @@ public class PicModeSelectDialogFragment extends DialogFragment {
         final GOTOConstants.PicMode[] values = GOTOConstants.PicMode.values();
         String[] names = new String[values.length];
         for (int i = 0; i < values.length; i++) {
-            names[i] = values[i].name().toLowerCase();
+            names[i] = values[i].getTitle();
         }
         builder.setTitle("Select Mode")
                 .setItems(names, new DialogInterface.OnClickListener() {
