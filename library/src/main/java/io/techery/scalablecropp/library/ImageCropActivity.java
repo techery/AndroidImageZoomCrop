@@ -84,6 +84,10 @@ public class ImageCropActivity extends Activity {
             }
         });
         String file_path = getIntent().getStringExtra(INPUT_FILE_PATH);
+        int ratioX = getIntent().getIntExtra(INPUT_RATIO_X, 3);
+        int ratioY = getIntent().getIntExtra(INPUT_RATIO_Y, 1);
+
+        mCropOverlayView.setRatio(ratioX,ratioY);
         mImagePath = new File(file_path).getPath();
         mSaveUri = Utils.getImageUri(mImagePath);
         mImageUri = Utils.getImageUri(mImagePath);

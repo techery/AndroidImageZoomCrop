@@ -158,4 +158,10 @@ public class CropOverlayView extends View implements PhotoViewAttacher.IGetImage
         canvas.drawLine(left, y2, right, y2, mGuidelinePaint);
     }
 
+    public void setRatio(int ratioX, int ratioY) {
+        this.mRatioX = ratioX;
+        this.mRatioY = ratioY;
+        init(getContext());
+
+    }
 }
