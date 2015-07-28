@@ -68,7 +68,7 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
                         onError("Error while opening the image file. Please try again.");
                     }
                 }
-                Crop.prepare(mFileTemp.getPath()).ratio(1,1).startFrom(this);
+                Crop.prepare(mFileTemp.getPath()).ratio(3,1).startFrom(this);
             } else if (resultCode == RESULT_CANCELED) {
                 onCancel();
             } else {
