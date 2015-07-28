@@ -59,6 +59,7 @@ public class ImageCropActivity extends Activity {
     private String mImagePath;
     private Uri mSaveUri = null;
     private Uri mImageUri = null;
+    private PhotoViewAttacher mAttacher;
 
 
     @Override
@@ -76,7 +77,7 @@ public class ImageCropActivity extends Activity {
                 onBackPressed();
             }
         });
-        findViewById(R.id.btn_done).setOnClickListener(btnDoneListerner);
+        findViewById(R.id.btn_done).setOnClickListener(banDoneListener);
         mImageView.addListener(new PhotoViewAttacher.IGetImageBounds() {
             @Override
             public Rect getImageBounds() {
@@ -87,7 +88,7 @@ public class ImageCropActivity extends Activity {
         int ratioX = getIntent().getIntExtra(INPUT_RATIO_X, 3);
         int ratioY = getIntent().getIntExtra(INPUT_RATIO_Y, 1);
 
-        mCropOverlayView.setRatio(ratioX,ratioY);
+        mCropOverlayView.setRatio(ratioX, ratioY);
         mImagePath = new File(file_path).getPath();
         mSaveUri = Utils.getImageUri(mImagePath);
         mImageUri = Utils.getImageUri(mImagePath);
@@ -107,27 +108,20 @@ public class ImageCropActivity extends Activity {
         int w = bitmap.getIntrinsicWidth();
         final float cropWindowWidth = Edge.getWidth();
         final float cropWindowHeight = Edge.getHeight();
-        if (h <= w) {
-            //Set the image view height to
-            minScale = (cropWindowHeight + 1f) / h;
-        } else if (w < h) {
-            minScale = (cropWindowWidth + 1f) / w;
-        }
+        minScale = (cropWindowWidth + 1f) / w;
 
         mImageView.setMaximumScale(minScale * 3);
         mImageView.setMediumScale(minScale * 2);
         mImageView.setMinimumScale(minScale);
         mImageView.setImageDrawable(bitmap);
-        mImageView.setScale(minScale);
-
+        mImageView.setScale(minScale, 0, cropWindowHeight, false);
         //Initialize the MoveResize text
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) mMoveResizeText.getLayoutParams();
         lp.setMargins(0, Math.round(Edge.BOTTOM.getCoordinate()) + 20, 0, 0);
         mMoveResizeText.setLayoutParams(lp);
-
     }
 
-    private View.OnClickListener btnDoneListerner = new View.OnClickListener() {
+    private View.OnClickListener banDoneListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             saveUploadCroppedImage();
