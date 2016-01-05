@@ -1,17 +1,16 @@
 package io.techery.scalablecropp;
 
 import android.app.Activity;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.widget.CardView;
-import android.util.DisplayMetrics;
+import android.provider.MediaStore;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -26,10 +25,10 @@ import io.techery.scalablecropp.library.Utils;
 import static io.techery.scalablecropp.ImageDeliveryClub.REQUEST_CODE_PICK_GALLERY;
 import static io.techery.scalablecropp.ImageDeliveryClub.REQUEST_CODE_TAKE_PICTURE;
 
-
 public class ImageViewActivity extends Activity implements PicModeSelectDialogFragment.IPicModeSelectListener, Crop.ImageCropListener {
 
     public static final String TAG = "ImageViewActivity";
+    public static final String TEMP_PHOTO_FILE_PREFIX_FOR_EXIST_IMAGE = "copy_of_";
     public static final String TEMP_PHOTO_FILE_NAME = "temp_photo.jpg";
 
     public static final Uri CONTENT_URI = Uri.parse("content://com.myntra.profilepic.crop/");
@@ -49,7 +48,6 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
                 showAddPicDialog();
             }
         });
-        createTempFile();
     }
 
     @Override
@@ -62,13 +60,17 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
                 if (requestCode == REQUEST_CODE_PICK_GALLERY) {
                     try {
                         Uri data = result.getData();
+                        File sourceFile = new File(getRealPathFromURI(data));
+                        createTempFileCopy(sourceFile);
                         InputStream inputStream = getContentResolver().openInputStream(data); // Got the bitmap .. Copy it to the temp file for cropping
                         Utils.copy(inputStream, mFileTemp);
                     } catch (Exception e) {
                         onError("Error while opening the image file. Please try again.");
                     }
+                } else { //requestCode == REQUEST_CODE_TAKE_PICTURE
+                    mFileTemp = new File(getTempFilePathForCamera());
                 }
-                Crop.prepare(mFileTemp.getPath()).ratio(3,1).startFrom(this);
+                Crop.prepare(mFileTemp.getPath()).ratio(3, 1).startFrom(this);
             } else if (resultCode == RESULT_CANCELED) {
                 onCancel();
             } else {
@@ -77,13 +79,36 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
         }
     }
 
-    private void createTempFile() {
+    private String getRealPathFromURI(Uri contentUri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
+        CursorLoader loader = new CursorLoader(this, contentUri, projection, null, null, null);
+        Cursor cursor = loader.loadInBackground();
+        int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        String result = cursor.getString(columnIndex);
+        cursor.close();
+        return result;
+    }
+
+    private void createTempFileCopy(File sourceFile) {
+        String tempFileName = TEMP_PHOTO_FILE_PREFIX_FOR_EXIST_IMAGE + sourceFile.getName();
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
-            mFileTemp = new File(Environment.getExternalStorageDirectory(), TEMP_PHOTO_FILE_NAME);
+            mFileTemp = new File(Environment.getExternalStorageDirectory(), tempFileName);
         } else {
-            mFileTemp = new File(getFilesDir(), TEMP_PHOTO_FILE_NAME);
+            mFileTemp = new File(getFilesDir(), tempFileName);
         }
+    }
+
+    private String getTempFilePathForCamera() {
+        String state = Environment.getExternalStorageState();
+        String tempFilePath;
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            tempFilePath = Environment.getExternalStorageDirectory() + "/" + TEMP_PHOTO_FILE_NAME;
+        } else {
+            tempFilePath = Environment.getExternalStorageDirectory() + "/" + TEMP_PHOTO_FILE_NAME;
+        }
+        return tempFilePath;
     }
 
     public void onCancel() {
@@ -98,7 +123,7 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
     public void onPicModeSelected(GOTOConstants.PicMode mode) {
         switch (mode) {
             case CAMERA:
-                imageDeliveryClub.takePic(this, mFileTemp);
+                imageDeliveryClub.takePic(this, new File(getTempFilePathForCamera()));
                 break;
             case GALLERY:
                 imageDeliveryClub.pickImage(this);
@@ -110,6 +135,9 @@ public class ImageViewActivity extends Activity implements PicModeSelectDialogFr
         if (mImagePath != null) {
             Bitmap myBitmap = BitmapFactory.decodeFile(mImagePath);
             mImageView.setImageBitmap(myBitmap);
+        }
+        if (mFileTemp != null){
+            mFileTemp.delete();
         }
     }
 
