@@ -92,7 +92,7 @@ public class ImageCropActivity extends Activity {
         mImagePath = new File(file_path).getPath();
         mSaveUri = Utils.getImageUri(mImagePath);
         mImageUri = Utils.getImageUri(mImagePath);
-        init();
+        init(ratioX, ratioY);
     }
 
 
@@ -101,7 +101,7 @@ public class ImageCropActivity extends Activity {
         super.onStart();
     }
 
-    private void init() {
+    private void init(int requiredRatioX, int requiredRatioY) {
         Bitmap b = getBitmap(mImageUri);
         Drawable bitmap = new BitmapDrawable(getResources(), b);
         int h = bitmap.getIntrinsicHeight();
@@ -114,7 +114,17 @@ public class ImageCropActivity extends Activity {
         mImageView.setMediumScale(minScale * 2);
         mImageView.setMinimumScale(minScale);
         mImageView.setImageDrawable(bitmap);
-        mImageView.setScale(minScale, 0, cropWindowHeight*10, false);
+
+        if (requiredRatioX == requiredRatioY) {
+            int focalY = h + (int)(minScale * (cropWindowHeight - h * minScale));
+            if (minScale > 1) {
+                focalY = - focalY;
+            }
+            mImageView.setScale(minScale, 0, focalY, false);
+        } else {
+            mImageView.setScale(minScale, 0, cropWindowHeight*10, false);
+        }
+
         //Initialize the MoveResize text
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) mMoveResizeText.getLayoutParams();
         lp.setMargins(0, Math.round(Edge.BOTTOM.getCoordinate()) + 20, 0, 0);
