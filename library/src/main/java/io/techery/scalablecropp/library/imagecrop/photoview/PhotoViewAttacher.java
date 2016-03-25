@@ -733,6 +733,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
                 case FIT_END:
                     deltaY = overlayViewHeight - height - rect.top;
                     break;
+                case CENTER:
+                    deltaY = (overlayViewHeight - height) / 2 - rect.top;
+                    break;
                 default:
                     // TODO : Need to fix this ..Need to do something to be more accurate...
                     deltaY = 0;//(overlayViewHeight - height) / 2 ;//- rect.top;
@@ -763,10 +766,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
             mScrollEdge = EDGE_LEFT;
             deltaX = -(rect.left - overalyImageBounds.left); // -rect.left;
         } else if (rect.right < overalyImageBounds.right) {
-            deltaX = (overalyImageBounds.right - rect.right);
-            mScrollEdge = EDGE_RIGHT;
-        } else {
-            mScrollEdge = EDGE_NONE;
+            deltaX = overalyImageBounds.right - rect.right;
         }
         // Finally actually translate the matrix
         mSuppMatrix.postTranslate(deltaX, deltaY);
